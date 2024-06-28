@@ -50,15 +50,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
     response_data = response.json()
+    # Add debug logging to inspect the response
+    print(f"Response Data: {json.dumps(response_data, indent=2)}")
 
     if response_data and 'choices' in response_data and response_data['choices']:
         choice = response_data['choices'][0]
         content = None
+        # Ensure 'message' is treated as a dictionary
+        message_content = choice.get('message', {}).get('content', [])
+        if isinstance(message_content, list):
         # Traverse the nested structure to find the content under text:content
-        for message in choice['message']['content']:
-            if message['type'] == 'text':
-                content = message['text']['content']
-                break
+            for message in choice['message']['content']:
+                if message['type'] == 'text':
+                    content = message['text']['content']
+                    break
 
         if content:
             # Split the response into smaller parts if it exceeds the Telegram message length limit
