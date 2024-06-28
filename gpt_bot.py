@@ -60,10 +60,12 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         message_content = choice.get('message', {}).get('content', [])
         if isinstance(message_content, list):
         # Traverse the nested structure to find the content under text:content
-            for message in choice['message']['content']:
-                if message['type'] == 'text':
-                    content = message['text']['content']
+            for message in message_content:
+                if message.get('type') == 'text':
+                    content = message.get('text', {}).get('content')
                     break
+        elif isinstance(message_content, str):
+            content = message_content
 
         if content:
             # Split the response into smaller parts if it exceeds the Telegram message length limit
